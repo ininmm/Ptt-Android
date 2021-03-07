@@ -1,5 +1,6 @@
 package tw.y_studio.ptt.source.remote.board
 
+import tw.y_studio.ptt.api.model.board.article.ArticleDetail
 import tw.y_studio.ptt.api.model.board.article.ArticleList
 import tw.y_studio.ptt.api.model.board.hot_board.HotBoard
 
@@ -13,4 +14,9 @@ interface IBoardRemoteDataSource {
         limit: Int = 200,
         desc: Boolean = true
     ): ArticleList
+
+    suspend fun getBoardArticleDetail(
+        boardId: String,
+        articleId: String
+    ): ArticleDetail
 }

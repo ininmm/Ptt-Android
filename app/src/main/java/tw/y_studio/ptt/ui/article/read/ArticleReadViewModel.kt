@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tw.y_studio.ptt.api.PostRankMark
 import tw.y_studio.ptt.ptt.AidConverter
+import tw.y_studio.ptt.source.remote.board.IBoardRemoteDataSource
 import tw.y_studio.ptt.source.remote.post.IPostRemoteDataSource
 import tw.y_studio.ptt.utils.Log
 import tw.y_studio.ptt.utils.StringUtils
@@ -17,6 +18,7 @@ import java.util.regex.Pattern
 
 class ArticleReadViewModel(
     private val postRemoteDataSource: IPostRemoteDataSource,
+    private val boardRemoteDataSource: IBoardRemoteDataSource,
     private val preferences: SharedPreferences,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {

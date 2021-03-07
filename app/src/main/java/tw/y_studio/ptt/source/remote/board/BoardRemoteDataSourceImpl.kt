@@ -1,6 +1,7 @@
 package tw.y_studio.ptt.source.remote.board
 
 import tw.y_studio.ptt.api.board.BoardApiService
+import tw.y_studio.ptt.api.model.board.article.ArticleDetail
 import tw.y_studio.ptt.api.model.board.article.ArticleList
 import tw.y_studio.ptt.api.model.board.hot_board.HotBoard
 
@@ -25,5 +26,9 @@ class BoardRemoteDataSourceImpl(
             limit,
             desc
         )
+    }
+
+    override suspend fun getBoardArticleDetail(boardId: String, articleId: String): ArticleDetail {
+        return boardApiService.getArticleDetail(boardId, articleId)
     }
 }
