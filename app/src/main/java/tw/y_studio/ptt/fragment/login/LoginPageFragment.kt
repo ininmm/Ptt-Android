@@ -14,6 +14,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import tw.y_studio.ptt.FragmentTouchListener
 import tw.y_studio.ptt.HomeActivity
 import tw.y_studio.ptt.R
+import tw.y_studio.ptt.databinding.IncludeLoginTabPageBinding
 import tw.y_studio.ptt.databinding.LoginPageFragmentBinding
 import tw.y_studio.ptt.ui.BaseFragment
 import tw.y_studio.ptt.utils.KeyboardUtils
@@ -25,6 +26,8 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
     private val viewModel by viewModel<LoginPageViewModel>()
 
     private lateinit var binding: LoginPageFragmentBinding
+
+    private lateinit var loginTabBinding: IncludeLoginTabPageBinding
 
     private var isShowPassword = false
 
@@ -48,6 +51,7 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
         savedInstanceState: Bundle?
     ): View {
         binding = LoginPageFragmentBinding.inflate(inflater, container, false)
+        loginTabBinding = IncludeLoginTabPageBinding.bind(binding.root)
         return binding.root
     }
 
@@ -65,11 +69,15 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
             }
         }
         binding.apply {
+            textLoginPageLoginType.setOnClickListener(this@LoginPageFragment)
+            textLoginPageRegisterType.setOnClickListener(this@LoginPageFragment)
+        }
+        loginTabBinding.apply {
             textLoginPageServiceTerms.paintFlags = textLoginPageServiceTerms.paintFlags or Paint.UNDERLINE_TEXT_FLAG
             editLoginPageAccount.setText(id)
             btnLoginPageLogin.setOnClickListener(this@LoginPageFragment)
-            binding.btnLoginPageLogin.isEnabled = false
-            binding.btnLoginPageLogin.isClickable = false
+            btnLoginPageLogin.isEnabled = false
+            btnLoginPageLogin.isClickable = false
             btnLoginPageShowPassword.setOnClickListener(this@LoginPageFragment)
             editLoginPageAccount.addTextChangedListener(
                 beforeTextChanged = { char: CharSequence?, start: Int, count: Int, after: Int ->
@@ -77,7 +85,7 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
                 onTextChanged = { char: CharSequence?, start: Int, count: Int, after: Int ->
                     textLoginPageAccountMessage.isVisible = false
                     textLoginPagePasswordMessage.isVisible = false
-                    val password = binding.editLoginPagePassword.text.toString()
+                    val password = editLoginPagePassword.text.toString()
                     val haveAccount = char?.isNotEmpty() == true && password.isNotBlank()
                     loginButtonEnable(haveAccount)
                 },
@@ -89,7 +97,7 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
                 onTextChanged = { char: CharSequence?, start: Int, count: Int, after: Int ->
                     textLoginPageAccountMessage.isVisible = false
                     textLoginPagePasswordMessage.isVisible = false
-                    val account = binding.editLoginPageAccount.text.toString()
+                    val account = editLoginPageAccount.text.toString()
                     val havePassword = char?.isNotEmpty() == true && account.isNotBlank()
                     loginButtonEnable(havePassword)
                 },
@@ -114,8 +122,8 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
 
             viewModel.apply {
                 passwordMessage.observe(viewLifecycleOwner) {
-                    binding.textLoginPagePasswordMessage.setText(it)
-                    binding.textLoginPagePasswordMessage.isVisible = true
+                    loginTabBinding.textLoginPagePasswordMessage.setText(it)
+                    loginTabBinding.textLoginPagePasswordMessage.isVisible = true
                 }
                 errorMessage.observeEventNotNull(viewLifecycleOwner) {
                     Toast.makeText(requireActivity(), it, Toast.LENGTH_SHORT).show()
@@ -124,24 +132,47 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
                     Toast.makeText(requireActivity(), "登入成功！", Toast.LENGTH_SHORT).show()
                     currentActivity.onBackPressed()
                 }
+                loginTypeTabColor.observe(viewLifecycleOwner) {
+                    binding.textLoginPageLoginType.setTextColor(ContextCompat.getColor(requireContext(), it))
+                }
+                registerTypeTabColor.observe(viewLifecycleOwner) {
+                    binding.textLoginPageRegisterType.setTextColor(ContextCompat.getColor(requireContext(), it))
+                }
             }
         }
     }
 
     private fun loginButtonEnable(isEnable: Boolean) {
         if (isEnable) {
-            binding.btnLoginPageLogin.backgroundTintList = ColorStateList.valueOf(
+            loginTabBinding.btnLoginPageLogin.backgroundTintList = ColorStateList.valueOf(
                 ContextCompat.getColor(requireContext(), R.color.tangerine)
             )
-            binding.btnLoginPageLogin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            loginTabBinding.btnLoginPageLogin.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         } else {
-            binding.btnLoginPageLogin.backgroundTintList = ColorStateList.valueOf(
+            loginTabBinding.btnLoginPageLogin.backgroundTintList = ColorStateList.valueOf(
                 ContextCompat.getColor(requireContext(), R.color.black)
             )
-            binding.btnLoginPageLogin.setTextColor(ContextCompat.getColor(requireContext(), R.color.tangerine))
+            loginTabBinding.btnLoginPageLogin.setTextColor(ContextCompat.getColor(requireContext(), R.color.tangerine))
         }
-        binding.btnLoginPageLogin.isEnabled = isEnable
-        binding.btnLoginPageLogin.isClickable = isEnable
+        loginTabBinding.btnLoginPageLogin.isEnabled = isEnable
+        loginTabBinding.btnLoginPageLogin.isClickable = isEnable
+    }
+
+    private fun showLoginTabPage(isVisible: Boolean) {
+        loginTabBinding.apply {
+            editLoginPageAccount.isVisible = isVisible
+            spaceLoginPageAccountToPassword.isVisible = isVisible
+            textLoginPageAccountMessage.isVisible = isVisible
+            editLoginPagePassword.isVisible = isVisible
+            spaceLoginPagePasswordToLogin.isVisible = isVisible
+            spaceLoginPageLoginToForgotDivider.isVisible = isVisible
+            textLoginPagePasswordMessage.isVisible = isVisible
+            btnLoginPageShowPassword.isVisible = isVisible
+            btnLoginPageLogin.isVisible = isVisible
+            btnLoginPageForgot.isVisible = isVisible
+            textLoginPageServiceTerms.isVisible = isVisible
+            dividerLoginPageForgot.isVisible = isVisible
+        }
     }
 
     override fun onAnimOver() {}
@@ -172,32 +203,40 @@ class LoginPageFragment : BaseFragment(), FragmentTouchListener, View.OnClickLis
 
     override fun onClick(v: View) {
         when (v.id) {
+            R.id.textLoginPageLoginType -> {
+                viewModel.selectType(v.id)
+                showLoginTabPage(true)
+            }
+            R.id.textLoginPageRegisterType -> {
+                viewModel.selectType(v.id)
+                showLoginTabPage(false)
+            }
             R.id.btnLoginPageLogin -> {
                 KeyboardUtils.hideSoftInput(requireActivity())
-                val account = binding.editLoginPageAccount.text.toString()
-                val password = binding.editLoginPagePassword.text.toString()
+                val account = loginTabBinding.editLoginPageAccount.text.toString()
+                val password = loginTabBinding.editLoginPagePassword.text.toString()
                 viewModel.checkLoginLegal(requireContext(), account, password)
             }
             R.id.btnLoginPageShowPassword -> {
                 if (isShowPassword) {
-                    binding.btnLoginPageShowPassword.setImageDrawable(
+                    loginTabBinding.btnLoginPageShowPassword.setImageDrawable(
                         ContextCompat.getDrawable(
                             requireContext(),
                             R.drawable.ic_baseline_visibility_off_24
                         )
                     )
-                    binding.editLoginPagePassword.transformationMethod = PasswordTransformationMethod.getInstance()
+                    loginTabBinding.editLoginPagePassword.transformationMethod = PasswordTransformationMethod.getInstance()
                 } else {
-                    binding.btnLoginPageShowPassword.setImageDrawable(
+                    loginTabBinding.btnLoginPageShowPassword.setImageDrawable(
                         ContextCompat.getDrawable(
                             requireContext(),
                             R.drawable.ic_baseline_visibility_24
                         )
                     )
-                    binding.editLoginPagePassword.transformationMethod = null
+                    loginTabBinding.editLoginPagePassword.transformationMethod = null
                 }
-                binding.editLoginPagePassword.text?.length?.let { length ->
-                    binding.editLoginPagePassword.setSelection(length)
+                loginTabBinding.editLoginPagePassword.text?.length?.let { length ->
+                    loginTabBinding.editLoginPagePassword.setSelection(length)
                 }
                 isShowPassword = !isShowPassword
             }

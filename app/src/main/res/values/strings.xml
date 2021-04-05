@@ -66,6 +66,7 @@
     <string name="persion_page_tabs_info">個人資訊</string>
     <string name="persion_page_tabs_articles">歷史文章</string>
     <string name="persion_page_tabs_comments">歷史留言</string>
+    <string name="login_page_email">電子信箱</string>
     <string name="login_page_user_id">使用者帳號</string>
     <string name="login_page_password">密碼</string>
     <string name="login_page_title">批踢踢實業坊\nPtt.cc</string>

@@ -2,6 +2,7 @@ package tw.y_studio.ptt.fragment.login
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.IdRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -24,6 +25,12 @@ class LoginPageViewModel(private val source: IUserRemoteDataSource) : ViewModel(
 
     private val _loginSuccess = MutableLiveData<Unit>()
     val loginSuccess: LiveData<Unit> = _loginSuccess
+
+    private val _loginTypeTabColor = MutableLiveData<Int>()
+    val loginTypeTabColor: LiveData<Int> = _loginTypeTabColor
+
+    private val _registerTypeTabColor = MutableLiveData<Int>()
+    val registerTypeTabColor: LiveData<Int> = _registerTypeTabColor
 
     fun checkLoginLegal(context: Context, account: String, password: String) = viewModelScope.launch {
         if (!StringUtils.isAccount(account)) {
@@ -55,6 +62,16 @@ class LoginPageViewModel(private val source: IUserRemoteDataSource) : ViewModel(
         } catch (e: Exception) {
             e.printStackTrace()
             _errorMessage.value = Event(R.string.server_error)
+        }
+    }
+
+    fun selectType(@IdRes id: Int) {
+        if (id == R.id.textLoginPageLoginType) {
+            _loginTypeTabColor.value = R.color.paleGrey
+            _registerTypeTabColor.value = R.color.slateGrey
+        } else {
+            _loginTypeTabColor.value = R.color.slateGrey
+            _registerTypeTabColor.value = R.color.paleGrey
         }
     }
 }
